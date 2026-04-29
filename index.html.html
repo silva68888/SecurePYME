@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecurePYME Agent – Prototipo del Sistema</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #03070F;
+  --dark: #060D1A;
+  --panel: #0A1628;
+  --panel2: #0D1E35;
+  --cyan: #00E5FF;
+  --cyan2: #00B8D4;
+  --blue: #1A6EFF;
+  --blue2: #0D47A1;
+  --green: #00E676;
+  --amber: #FFB300;
+  --red: #FF1744;
+  --purple: #651FFF;
+  --border: rgba(0,229,255,0.18);
+  --border2: rgba(0,229,255,0.08);
+  --text: #E0F7FA;
+  --text2: #80DEEA;
+  --text3: #4DD0E1;
+  --glow: 0 0 20px rgba(0,229,255,0.3);
+  --glow2: 0 0 40px rgba(0,229,255,0.15);
+  --font-head: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── GRID BG ── */
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events:none;
+}
+
+/* ── SCANLINE ── */
+body::after {
+  content:'';
+  position:fixed; inset:0; z-index:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events:none;
+}
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background: rgba(3,7,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  height: 60px;
+}
+.nav-logo {
+  display:flex; align-items:center; gap:12px;
+}
+.nav-logo-icon {
+  width:36px; height:36px;
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display:flex; align-items:center; justify-content:center;
+  animation: pulse-icon 3s ease-in-out infinite;
+}
+@keyframes pulse-icon {
+  0%,100%{ box-shadow: 0 0 0 0 rgba(0,229,255,0.4); }
+  50%{ box-shadow: 0 0 0 8px rgba(0,229,255,0); }
+}
+.nav-logo-text {
+  font-family: var(--font-head);
+  font-size: 13px; font-weight:700;
+  color: var(--cyan);
+  letter-spacing:2px;
+}
+.nav-links {
+  display:flex; gap:6px; list-style:none;
+}
+.nav-links a {
+  font-family: var(--font-head);
+  font-size:10px; font-weight:500; letter-spacing:1.5px;
+  color: var(--text2);
+  text-decoration:none;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius:2px;
+  transition: all 0.2s;
+}
+.nav-links a:hover {
+  color: var(--cyan);
+  border-color: var(--border);
+  background: rgba(0,229,255,0.05);
+}
+.nav-badge {
+  font-family: var(--font-head);
+  font-size:9px; letter-spacing:1px;
+  color: var(--navy);
+  background: var(--cyan);
+  padding: 4px 12px;
+  border-radius:2px;
+  font-weight:700;
+}
+
+/* ── HERO ── */
+.hero {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding: 80px 2rem 4rem;
+  overflow:hidden;
+}
+.hero-orb {
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  animation: float-orb 8s ease-in-out infinite;
+}
+.hero-orb-1 { width:500px; height:500px; background:rgba(0,229,255,0.06); top:-100px; left:-150px; }
+.hero-orb-2 { width:400px; height:400px; background:rgba(26,110,255,0.08); bottom:-100px; right:-100px; animation-delay:-4s; }
+@keyframes float-orb {
+  0%,100%{ transform:translateY(0) scale(1); }
+  50%{ transform:translateY(-30px) scale(1.05); }
+}
+.hero-tag {
+  font-family: var(--font-head);
+  font-size:10px; letter-spacing:3px;
+  color: var(--cyan);
+  border: 1px solid var(--border);
+  padding: 6px 20px;
+  border-radius:2px;
+  margin-bottom:2rem;
+  display:inline-block;
+  animation: fadeInUp 0.6s ease both;
+}
+.hero-title {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight:900;
+  line-height:1.1;
+  margin-bottom:1.5rem;
+  animation: fadeInUp 0.6s ease 0.1s both;
+}
+.hero-title span {
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.hero-sub {
+  font-size:17px; font-weight:300;
+  color: var(--text2);
+  max-width:680px;
+  margin: 0 auto 2.5rem;
+  animation: fadeInUp 0.6s ease 0.2s both;
+}
+.hero-pills {
+  display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  margin-bottom:3rem;
+  animation: fadeInUp 0.6s ease 0.3s both;
+}
+.hero-pill {
+  font-family: var(--font-head);
+  font-size:9px; letter-spacing:1.5px;
+  padding: 6px 14px;
+  border-radius:2px;
+  font-weight:600;
+}
+.pill-green { background:rgba(0,230,118,0.1); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+.pill-cyan  { background:rgba(0,229,255,0.1); color:var(--cyan);  border:1px solid rgba(0,229,255,0.3); }
+.pill-blue  { background:rgba(26,110,255,0.1); color:#64B5F6;     border:1px solid rgba(26,110,255,0.3); }
+.pill-amber { background:rgba(255,179,0,0.1);  color:var(--amber); border:1px solid rgba(255,179,0,0.3); }
+.hero-cta {
+  display:inline-block;
+  font-family:var(--font-head); font-size:11px; font-weight:700; letter-spacing:2px;
+  color:var(--navy);
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  padding: 14px 36px;
+  border-radius:2px;
+  text-decoration:none;
+  transition: all 0.2s;
+  animation: fadeInUp 0.6s ease 0.4s both;
+}
+.hero-cta:hover { transform:translateY(-2px); box-shadow: var(--glow); }
+
+/* ── SECTION ── */
+section {
+  position:relative; z-index:1;
+  padding: 6rem 2rem;
+  max-width:1200px;
+  margin:0 auto;
+}
+.section-label {
+  font-family:var(--font-head); font-size:10px; letter-spacing:3px;
+  color:var(--cyan); margin-bottom:0.75rem;
+}
+.section-title {
+  font-family:var(--font-head); font-size:clamp(1.4rem,3vw,2.2rem);
+  font-weight:700; margin-bottom:1rem;
+  line-height:1.2;
+}
+.section-body {
+  color:var(--text2); font-size:15px; line-height:1.8;
+  max-width:700px;
+}
+hr.sep {
+  border:none;
+  border-top: 1px solid var(--border2);
+  margin: 0 2rem;
+  position:relative; z-index:1;
+}
+
+/* ── PROBLEM CARDS ── */
+.problem-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap:16px; margin-top:3rem;
+}
+.prob-card {
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:24px 20px;
+  position:relative;
+  overflow:hidden;
+  transition: all 0.3s;
+}
+.prob-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.prob-card:hover { border-color:var(--border); transform:translateY(-4px); box-shadow:var(--glow2); }
+.prob-icon { font-size:24px; margin-bottom:12px; }
+.prob-title { font-family:var(--font-head); font-size:11px; letter-spacing:1px; font-weight:700; color:var(--red); margin-bottom:8px; }
+.prob-text { font-size:13px; color:var(--text2); line-height:1.6; }
+
+/* ── ARCH DIAGRAM ── */
+.arch-wrap {
+  margin-top:3rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:2rem;
+  position:relative;
+  overflow:hidden;
+}
+.arch-wrap::before {
+  content:'ARQUITECTURA DEL SISTEMA';
+  position:absolute; top:12px; right:20px;
+  font-family:var(--font-head); font-size:8px; letter-spacing:2px;
+  color:var(--border);
+}
+.arch-layers {
+  display:flex; flex-direction:column; gap:12px;
+}
+.arch-layer {
+  display:flex; align-items:stretch; gap:12px;
+}
+.layer-label {
+  width:130px; flex-shrink:0;
+  display:flex; align-items:center;
+  font-family:var(--font-head); font-size:9px; letter-spacing:1.5px;
+  color:var(--text3);
+  border-right: 1px solid var(--border2);
+  padding-right:12px;
+}
+.layer-boxes {
+  flex:1; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+}
+.lbox {
+  flex:1; min-width:130px;
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:12px 14px;
+  transition:all 0.3s;
+  cursor:default;
+}
+.lbox:hover { border-color:var(--border); box-shadow:var(--glow2); }
+.lbox-head {
+  font-family:var(--font-head); font-size:9px; letter-spacing:1px; font-weight:700;
+  margin-bottom:4px;
+}
+.lbox-text { font-size:11px; color:var(--text2); line-height:1.5; }
+.c-green .lbox-head { color:var(--green); }
+.c-cyan  .lbox-head { color:var(--cyan); }
+.c-blue  .lbox-head { color:#64B5F6; }
+.c-amber .lbox-head { color:var(--amber); }
+.c-green { border-left:2px solid var(--green); }
+.c-cyan  { border-left:2px solid var(--cyan); }
+.c-blue  { border-left:2px solid #64B5F6; }
+.c-amber { border-left:2px solid var(--amber); }
+.arch-arrow {
+  display:flex; align-items:center; justify-content:center;
+  color:var(--cyan); font-size:20px; padding:0 4px;
+  opacity:0.5;
+}
+
+/* ── MODULES ── */
+.modules-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+  gap:20px; margin-top:3rem;
+}
+.mod-card {
+  background:var(--panel);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  padding:28px 24px;
+  position:relative;
+  overflow:hidden;
+  transition:all 0.3s;
+}
+.mod-card:hover { border-color:var(--border); box-shadow:var(--glow2); transform:translateY(-4px); }
+.mod-num {
+  position:absolute; top:20px; right:20px;
+  font-family:var(--font-head); font-size:36px; font-weight:900;
+  color:rgba(0,229,255,0.05); line-height:1;
+}
+.mod-icon {
+  width:48px; height:48px; border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; margin-bottom:16px;
+}
+.mod-title { font-family:var(--font-head); font-size:12px; letter-spacing:1px; font-weight:700; margin-bottom:8px; }
+.mod-text { font-size:13px; color:var(--text2); line-height:1.7; }
+.mod-tag {
+  display:inline-block;
+  font-family:var(--font-head); font-size:8px; letter-spacing:1px;
+  padding:4px 10px; border-radius:2px; margin-top:12px; font-weight:600;
+}
+
+/* ── FLOW SECTION ── */
+.flow-timeline {
+  margin-top:3rem;
+  position:relative;
+}
+.flow-timeline::before {
+  content:''; position:absolute;
+  left:24px; top:0; bottom:0; width:1px;
+  background:linear-gradient(180deg, var(--cyan), transparent);
+}
+.flow-step {
+  display:flex; gap:24px; align-items:flex-start;
+  margin-bottom:2.5rem; padding-left:0;
+  animation: fadeInLeft 0.5s ease both;
+}
+.flow-step:nth-child(1){ animation-delay:0.1s; }
+.flow-step:nth-child(2){ animation-delay:0.2s; }
+.flow-step:nth-child(3){ animation-delay:0.3s; }
+.flow-step:nth-child(4){ animation-delay:0.4s; }
+.flow-step:nth-child(5){ animation-delay:0.5s; }
+@keyframes fadeInLeft { from{ opacity:0; transform:translateX(-20px); } to{ opacity:1; transform:none; } }
+.flow-dot {
+  width:48px; height:48px; flex-shrink:0;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-head); font-size:14px; font-weight:700;
+  border:2px solid;
+  position:relative; z-index:1;
+  background:var(--dark);
+}
+.flow-content { flex:1; padding-top:10px; }
+.flow-title { font-family:var(--font-head); font-size:13px; letter-spacing:1px; font-weight:700; margin-bottom:6px; }
+.flow-text { font-size:14px; color:var(--text2); line-height:1.7; }
+.flow-chip {
+  display:inline-block;
+  font-family:var(--font-head); font-size:8px; letter-spacing:1px;
+  padding:3px 10px; border-radius:2px; margin-top:8px; font-weight:600;
+}
+
+/* ── DASHBOARD MOCKUP ── */
+.dash-mockup {
+  margin-top:3rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  overflow:hidden;
+}
+.dash-topbar {
+  background:rgba(0,229,255,0.05);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex; align-items:center; gap:10px;
+}
+.dot { width:10px; height:10px; border-radius:50%; }
+.dash-topbar-title {
+  font-family:var(--font-head); font-size:10px; letter-spacing:2px; color:var(--text3); margin-left:8px;
+}
+.dash-body { padding:20px; }
+.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+.stat-box {
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:14px;
+}
+.stat-label { font-family:var(--font-head); font-size:8px; letter-spacing:1.5px; color:var(--text3); margin-bottom:6px; }
+.stat-value { font-family:var(--font-head); font-size:22px; font-weight:700; }
+.stat-sub { font-size:10px; color:var(--text2); margin-top:2px; }
+.dash-grid { display:grid; grid-template-columns:1fr 300px; gap:12px; }
+.chart-area {
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:16px;
+}
+.chart-head { font-family:var(--font-head); font-size:9px; letter-spacing:1.5px; color:var(--text3); margin-bottom:16px; }
+.chart-bars { display:flex; align-items:flex-end; gap:6px; height:80px; }
+.bar { border-radius:2px 2px 0 0; flex:1; transition:all 0.3s; cursor:pointer; }
+.bar:hover { opacity:0.7; }
+.chart-xlabels { display:flex; gap:6px; margin-top:6px; }
+.xlbl { flex:1; text-align:center; font-size:9px; color:var(--text3); }
+.alerts-panel {
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:4px;
+  padding:14px;
+}
+.alerts-head { font-family:var(--font-head); font-size:9px; letter-spacing:1.5px; color:var(--text3); margin-bottom:12px; }
+.alert-row {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid var(--border2);
+}
+.alert-row:last-child { border-bottom:none; }
+.alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.alert-info { flex:1; }
+.alert-name { font-size:11px; font-weight:500; }
+.alert-time { font-size:9px; color:var(--text3); }
+.alert-badge {
+  font-family:var(--font-head); font-size:8px; letter-spacing:0.5px;
+  padding:2px 8px; border-radius:2px;
+}
+
+/* ── PROBLEM SOLUTION TABLE ── */
+.table-wrap {
+  margin-top:3rem;
+  overflow-x:auto;
+}
+.sol-table {
+  width:100%; border-collapse:collapse;
+  font-size:13px;
+}
+.sol-table th {
+  font-family:var(--font-head); font-size:9px; letter-spacing:2px;
+  color:var(--cyan); padding:12px 16px; text-align:left;
+  border-bottom:1px solid var(--border);
+  background:var(--panel);
+}
+.sol-table td {
+  padding:14px 16px; color:var(--text2);
+  border-bottom:1px solid var(--border2);
+  vertical-align:top;
+}
+.sol-table tr:hover td { background:rgba(0,229,255,0.02); }
+.td-prob { color:#FF5252; font-weight:500; }
+.td-sol { color:var(--green); }
+
+/* ── SHIELD ── */
+.shield-section {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:3rem;
+  margin-top:3rem;
+  position:relative; overflow:hidden;
+}
+.shield-section::after {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 80% 50%, rgba(0,229,255,0.04), transparent 60%);
+  pointer-events:none;
+}
+.shield-cycle {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:2rem;
+}
+.shield-step {
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  padding:20px;
+  display:flex; gap:16px; align-items:flex-start;
+  transition:all 0.3s;
+}
+.shield-step:hover { border-color:var(--border); }
+.step-num {
+  font-family:var(--font-head); font-size:28px; font-weight:900;
+  color:rgba(0,229,255,0.15); line-height:1; flex-shrink:0; width:36px;
+}
+.step-title { font-family:var(--font-head); font-size:11px; letter-spacing:1px; font-weight:700; color:var(--cyan); margin-bottom:4px; }
+.step-text { font-size:12px; color:var(--text2); line-height:1.6; }
+
+/* ── CREDITS / ABOUT ── */
+.about-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:3rem;
+  margin-top:3rem;
+  display:grid; grid-template-columns:1fr 1fr; gap:3rem;
+}
+.about-info-row { display:flex; gap:10px; margin-bottom:14px; align-items:baseline; }
+.about-label { font-family:var(--font-head); font-size:9px; letter-spacing:1.5px; color:var(--text3); min-width:120px; }
+.about-val { font-size:14px; color:var(--text); }
+.ods-badge {
+  display:inline-flex; align-items:center; gap:10px;
+  background:rgba(0,230,118,0.08);
+  border:1px solid rgba(0,230,118,0.2);
+  border-radius:4px; padding:12px 16px;
+  margin-top:1rem;
+}
+.ods-num { font-family:var(--font-head); font-size:28px; font-weight:900; color:var(--green); }
+.ods-text { font-size:12px; color:var(--text2); }
+
+/* ── FOOTER ── */
+footer {
+  position:relative; z-index:1;
+  border-top:1px solid var(--border2);
+  padding:2rem;
+  text-align:center;
+  font-family:var(--font-head); font-size:9px; letter-spacing:2px;
+  color:var(--text3);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from{ opacity:0; transform:translateY(20px); }
+  to{ opacity:1; transform:none; }
+}
+.reveal {
+  opacity:0; transform:translateY(24px);
+  transition:opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible { opacity:1; transform:none; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--dark); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .stats-row { grid-template-columns:1fr 1fr; }
+  .dash-grid { grid-template-columns:1fr; }
+  .about-card { grid-template-columns:1fr; gap:2rem; }
+  .shield-cycle { grid-template-columns:1fr; }
+  nav ul { display:none; }
+  .arch-layer { flex-direction:column; }
+  .layer-label { width:auto; border-right:none; border-bottom:1px solid var(--border2); padding:0 0 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon"></div>
+    <div>
+      <div class="nav-logo-text">SECUREPYME AGENT</div>
+      <div style="font-size:8px; color:var(--text3); letter-spacing:1px; font-family:var(--font-head);">HÍBRIDO INTELIGENTE v1.0</div>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#modulos">Módulos</a></li>
+    <li><a href="#flujo">Flujo</a></li>
+    <li><a href="#shield">Auto-Training</a></li>
+    <li><a href="#solucion">Solución</a></li>
+  </ul>
+  <span class="nav-badge">PROTOTIPO · ETAPA 4</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-tag">SISTEMA DE CIBERSEGURIDAD INTELIGENTE PARA PYMES</div>
+  <h1 class="hero-title">
+    <span>SecurePYME Agent</span><br>
+    Híbrido Inteligente
+  </h1>
+  <p class="hero-sub">
+    Sistema de monitoreo continuo, detección de anomalías con Machine Learning y capacitación gamificada, diseñado para proteger las PYMES colombianas sin necesidad de expertos en ciberseguridad.
+  </p>
+  <div class="hero-pills">
+    <span class="hero-pill pill-green">Operación sin internet</span>
+    <span class="hero-pill pill-cyan">Machine Learning Edge</span>
+    <span class="hero-pill pill-blue">Bajo costo</span>
+    <span class="hero-pill pill-amber">Sin personal técnico</span>
+    <span class="hero-pill pill-cyan">MITRE ATT&CK</span>
+  </div>
+  <a href="#problema" class="hero-cta">EXPLORAR EL SISTEMA ↓</a>
+</div>
+
+<hr class="sep">
+
+<!-- PROBLEMA -->
+<section id="problema">
+  <div class="reveal">
+    <div class="section-label">// 01 · PROBLEMÁTICA</div>
+    <h2 class="section-title">¿Por qué las PYMES colombianas<br>son el blanco más vulnerable?</h2>
+    <p class="section-body">
+      Las pequeñas y medianas empresas en Colombia enfrentan una brecha crítica de ciberseguridad. La digitalización acelerada las expone a amenazas graves que pueden destruir años de trabajo en cuestión de horas, sin que cuenten con los recursos ni el conocimiento para defenderse.
+    </p>
+  </div>
+  <div class="problem-grid reveal" style="transition-delay:0.2s">
+    <div class="prob-card">
+      <div class="prob-icon">⚠</div>
+      <div class="prob-title">SIN MONITOREO</div>
+      <div class="prob-text">La mayoría no tiene un sistema activo de vigilancia de su red. Los ataques pasan desapercibidos durante meses.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">&#128190;</div>
+      <div class="prob-title">SOFTWARE OBSOLETO</div>
+      <div class="prob-text">Sistemas sin actualizar son puertas abiertas. Las vulnerabilidades conocidas se explotan en minutos.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">&#128184;</div>
+      <div class="prob-title">PRESUPUESTO LIMITADO</div>
+      <div class="prob-text">Las soluciones de ciberseguridad tradicionales cuestan millones. Las PYMES no pueden pagarlas.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">&#128119;</div>
+      <div class="prob-title">SIN EXPERTOS</div>
+      <div class="prob-text">No tienen personal especializado en seguridad informática ni recursos para contratarlo.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">&#128246;</div>
+      <div class="prob-title">PHISHING MASIVO</div>
+      <div class="prob-text">El 91% de los ciberataques comienza con un correo falso. Sin capacitación, los empleados son el punto más débil.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-icon">&#127758;</div>
+      <div class="prob-title">CONECTIVIDAD INESTABLE</div>
+      <div class="prob-text">Muchas PYMES en regiones colombianas tienen acceso a internet intermitente, limitando soluciones en nube.</div>
+    </div>
+  </div>
+  <div class="reveal" style="margin-top:2rem; padding:1.5rem 2rem; background:rgba(255,23,68,0.05); border:1px solid rgba(255,23,68,0.2); border-radius:4px; transition-delay:0.3s">
+    <div style="font-family:var(--font-head); font-size:10px; letter-spacing:2px; color:var(--red); margin-bottom:8px;">DATO CRÍTICO</div>
+    <p style="font-size:16px; color:var(--text);">El <strong style="color:var(--red)">60% de las PYMES</strong> en Latinoamérica que sufren un ciberataque no logran recuperarse — el tiempo promedio de detección sin un sistema activo es de <strong style="color:var(--red)">241 días</strong> (IBM Security, 2025).</p>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ARQUITECTURA -->
+<section id="arquitectura">
+  <div class="reveal">
+    <div class="section-label">// 02 · ARQUITECTURA</div>
+    <h2 class="section-title">Sistema híbrido Edge + Nube</h2>
+    <p class="section-body">La arquitectura combina procesamiento local (edge) con orquestación en nube. Cuatro capas trabajan en secuencia para garantizar protección continua, incluso sin conexión a internet.</p>
+  </div>
+  <div class="arch-wrap reveal" style="transition-delay:0.2s">
+    <div class="arch-layers">
+
+      <div class="arch-layer">
+        <div class="layer-label">CAPA 1<br>RECOLECCIÓN</div>
+        <div class="layer-boxes">
+          <div class="lbox c-green">
+            <div class="lbox-head">Agente Wazuh (Edge)</div>
+            <div class="lbox-text">Instalado en servidores, endpoints y dispositivos de red. Recopila y normaliza logs de sistema, tráfico y correo.</div>
+          </div>
+          <div class="arch-arrow">→</div>
+          <div class="lbox c-green">
+            <div class="lbox-head">Recolector de Logs</div>
+            <div class="lbox-text">Comprime y estructura eventos: accesos, tráfico, aplicaciones, correos sospechosos.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:var(--text3); font-size:20px; padding:4px 0 4px 142px;">↓</div>
+
+      <div class="arch-layer">
+        <div class="layer-label">CAPA 2<br>ML LOCAL</div>
+        <div class="layer-boxes">
+          <div class="lbox c-cyan">
+            <div class="lbox-head">Isolation Forest</div>
+            <div class="lbox-text">Detecta anomalías en comportamiento de red y accesos. Funciona sin internet.</div>
+          </div>
+          <div class="lbox c-cyan">
+            <div class="lbox-head">Autoencoder</div>
+            <div class="lbox-text">Aprende patrones normales y genera alertas cuando el comportamiento se desvía significativamente.</div>
+          </div>
+          <div class="lbox c-cyan">
+            <div class="lbox-head">Auto-Training Shield</div>
+            <div class="lbox-text">Se entrena automáticamente en las primeras 2 semanas con datos reales de la empresa.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:var(--text3); font-size:20px; padding:4px 0 4px 142px;">↓ (cuando hay conexión)</div>
+
+      <div class="arch-layer">
+        <div class="layer-label">CAPA 3<br>NUBE</div>
+        <div class="layer-boxes">
+          <div class="lbox c-blue">
+            <div class="lbox-head">Motor MITRE ATT&CK</div>
+            <div class="lbox-text">Correlaciona patrones complejos y multi-etapa usando el marco global de tácticas de ataque conocidas.</div>
+          </div>
+          <div class="lbox c-blue">
+            <div class="lbox-head">Infraestructura SaaS</div>
+            <div class="lbox-text">AWS Free Tier / Azure. Cifrado TLS/AES. MFA + RBAC. Alta disponibilidad 99.9%. Pago por uso.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:var(--text3); font-size:20px; padding:4px 0 4px 142px;">↓</div>
+
+      <div class="arch-layer">
+        <div class="layer-label">CAPA 4<br>USUARIO</div>
+        <div class="layer-boxes">
+          <div class="lbox c-amber">
+            <div class="lbox-head">Dashboard Grafana</div>
+            <div class="lbox-text">Panel web con indicadores en tiempo real. Semáforo de estado: verde / amarillo / rojo.</div>
+          </div>
+          <div class="lbox c-amber">
+            <div class="lbox-head">Alertas Multicanal</div>
+            <div class="lbox-text">WhatsApp, correo electrónico, SMS. Notificaciones instantáneas ante amenazas detectadas.</div>
+          </div>
+          <div class="lbox c-amber">
+            <div class="lbox-head">Módulo Gamificado</div>
+            <div class="lbox-text">Simulaciones de phishing, niveles de progreso e insignias para capacitar al personal.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- DASHBOARD MOCKUP -->
+<section>
+  <div class="reveal">
+    <div class="section-label">// 03 · INTERFAZ DEL SISTEMA</div>
+    <h2 class="section-title">Panel de control en tiempo real</h2>
+    <p class="section-body">Diseñado para ser comprensible sin conocimientos técnicos. El administrador de la PYME ve el estado de seguridad de su empresa de un vistazo.</p>
+  </div>
+  <div class="dash-mockup reveal" style="transition-delay:0.2s">
+    <div class="dash-topbar">
+      <div class="dot" style="background:#FF5252"></div>
+      <div class="dot" style="background:#FFB300"></div>
+      <div class="dot" style="background:#00E676"></div>
+      <span class="dash-topbar-title">SECUREPYME AGENT · PANEL PRINCIPAL · Ferretería Los Andes SAS</span>
+      <span style="margin-left:auto; font-family:var(--font-head); font-size:8px; color:var(--text3);">ACTUALIZADO HACE 2 MIN</span>
+    </div>
+    <div class="dash-body">
+      <div class="stats-row">
+        <div class="stat-box" style="border-top:2px solid var(--green)">
+          <div class="stat-label">ESTADO GENERAL</div>
+          <div class="stat-value" style="color:var(--green); font-size:14px; padding-top:4px;">● Sistema normal</div>
+          <div class="stat-sub">Sin amenazas activas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">EVENTOS HOY</div>
+          <div class="stat-value" style="color:var(--text)">247</div>
+          <div class="stat-sub">+12% vs. ayer</div>
+        </div>
+        <div class="stat-box" style="border-top:2px solid var(--red)">
+          <div class="stat-label">ALERTAS ACTIVAS</div>
+          <div class="stat-value" style="color:var(--red)">2</div>
+          <div class="stat-sub">Requieren revisión</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">DIAS DE APRENDIZAJE</div>
+          <div class="stat-value" style="color:var(--cyan)">14</div>
+          <div class="stat-sub">Auto-Training completado</div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="chart-area">
+          <div class="chart-head">ACTIVIDAD DE RED — ÚLTIMAS 24 HORAS</div>
+          <div class="chart-bars">
+            <div class="bar" style="height:30%; background:var(--blue2);"></div>
+            <div class="bar" style="height:45%; background:var(--blue2);"></div>
+            <div class="bar" style="height:65%; background:var(--blue2);"></div>
+            <div class="bar" style="height:85%; background:var(--blue);"></div>
+            <div class="bar" style="height:100%; background:var(--cyan); opacity:0.9;"></div>
+            <div class="bar" style="height:75%; background:var(--blue);"></div>
+            <div class="bar" style="height:60%; background:var(--blue2);"></div>
+            <div class="bar" style="height:80%; background:var(--blue);"></div>
+            <div class="bar" style="height:95%; background:var(--cyan); opacity:0.7;"></div>
+            <div class="bar" style="height:50%; background:var(--blue2);"></div>
+            <div class="bar" style="height:40%; background:var(--blue2);"></div>
+            <div class="bar" style="height:35%; background:var(--blue2);"></div>
+          </div>
+          <div class="chart-xlabels">
+            <div class="xlbl">00h</div><div class="xlbl">02h</div><div class="xlbl">04h</div>
+            <div class="xlbl">06h</div><div class="xlbl">08h</div><div class="xlbl">10h</div>
+            <div class="xlbl">12h</div><div class="xlbl">14h</div><div class="xlbl">16h</div>
+            <div class="xlbl">18h</div><div class="xlbl">20h</div><div class="xlbl">22h</div>
+          </div>
+        </div>
+        <div class="alerts-panel">
+          <div class="alerts-head">ALERTAS RECIENTES</div>
+          <div class="alert-row">
+            <div class="alert-dot" style="background:var(--red)"></div>
+            <div class="alert-info">
+              <div class="alert-name">Acceso inusual — CONT-01</div>
+              <div class="alert-time">02:34 AM · hace 6 horas</div>
+            </div>
+            <div class="alert-badge" style="background:rgba(255,23,68,0.1); color:var(--red);">CRÍTICA</div>
+          </div>
+          <div class="alert-row">
+            <div class="alert-dot" style="background:var(--amber)"></div>
+            <div class="alert-info">
+              <div class="alert-name">Software desactualizado</div>
+              <div class="alert-time">Ayer 05:00 PM</div>
+            </div>
+            <div class="alert-badge" style="background:rgba(255,179,0,0.1); color:var(--amber);">MEDIA</div>
+          </div>
+          <div class="alert-row">
+            <div class="alert-dot" style="background:var(--green)"></div>
+            <div class="alert-info">
+              <div class="alert-name">Correo sospechoso bloqueado</div>
+              <div class="alert-time">Ayer 10:12 AM · Resuelto</div>
+            </div>
+            <div class="alert-badge" style="background:rgba(0,230,118,0.1); color:var(--green);">OK</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- MÓDULOS -->
+<section id="modulos">
+  <div class="reveal">
+    <div class="section-label">// 04 · MÓDULOS DEL SISTEMA</div>
+    <h2 class="section-title">Cuatro módulos que trabajan<br>de forma integrada</h2>
+  </div>
+  <div class="modules-grid">
+    <div class="mod-card reveal" style="transition-delay:0.1s">
+      <div class="mod-num">01</div>
+      <div class="mod-icon" style="background:rgba(0,230,118,0.1);">&#128272;</div>
+      <div class="mod-title" style="color:var(--green)">Módulo de Recolección Edge</div>
+      <div class="mod-text">Agente ligero Wazuh instalado en los equipos existentes de la PYME. Captura logs de sistema, tráfico de red, eventos de acceso y correos. Comprime y normaliza los datos antes de enviarlos al motor de análisis. Opera silenciosamente en segundo plano, sin afectar el rendimiento de los equipos.</div>
+      <div class="mod-tag" style="background:rgba(0,230,118,0.08); color:var(--green); border:1px solid rgba(0,230,118,0.2);">WAZUH · OPEN SOURCE</div>
+    </div>
+    <div class="mod-card reveal" style="transition-delay:0.2s">
+      <div class="mod-num">02</div>
+      <div class="mod-icon" style="background:rgba(0,229,255,0.1);">&#129504;</div>
+      <div class="mod-title" style="color:var(--cyan)">Módulo de Inteligencia ML</div>
+      <div class="mod-text">Dos modelos de Machine Learning corren directamente en el dispositivo edge: Isolation Forest detecta puntos de datos anómalos, y el Autoencoder aprende el comportamiento normal para identificar desviaciones. Ambos generan alertas inmediatas sin necesidad de conexión a internet, garantizando protección 24/7.</div>
+      <div class="mod-tag" style="background:rgba(0,229,255,0.08); color:var(--cyan); border:1px solid rgba(0,229,255,0.2);">TENSORFLOW LITE · ISOLATION FOREST</div>
+    </div>
+    <div class="mod-card reveal" style="transition-delay:0.3s">
+      <div class="mod-num">03</div>
+      <div class="mod-icon" style="background:rgba(26,110,255,0.1);">&#9729;</div>
+      <div class="mod-title" style="color:#64B5F6">Módulo de Orquestación Nube</div>
+      <div class="mod-text">Cuando existe conexión, los eventos se sincronizan con el servidor central donde el motor de correlación MITRE ATT&CK analiza patrones de ataque complejos y multi-etapa. La infraestructura SaaS opera con cifrado TLS/AES, autenticación multifactor y disponibilidad del 99.9%, todo con pago por uso.</div>
+      <div class="mod-tag" style="background:rgba(26,110,255,0.08); color:#64B5F6; border:1px solid rgba(26,110,255,0.2);">MITRE ATT&CK · AWS / AZURE</div>
+    </div>
+    <div class="mod-card reveal" style="transition-delay:0.4s">
+      <div class="mod-num">04</div>
+      <div class="mod-icon" style="background:rgba(255,179,0,0.1);">&#127918;</div>
+      <div class="mod-title" style="color:var(--amber)">Módulo Educativo Gamificado</div>
+      <div class="mod-text">El factor humano es la principal vulnerabilidad. Este módulo capacita a los empleados mediante simulaciones de phishing, niveles de progreso e insignias de reconocimiento. El personal aprende a identificar amenazas reales de forma entretenida, reduciendo drásticamente el riesgo de caer en ataques de ingeniería social.</div>
+      <div class="mod-tag" style="background:rgba(255,179,0,0.08); color:var(--amber); border:1px solid rgba(255,179,0,0.2);">GAMIFICACIÓN · IA GENERATIVA</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- FLUJO -->
+<section id="flujo">
+  <div class="reveal">
+    <div class="section-label">// 05 · FLUJO DE FUNCIONAMIENTO</div>
+    <h2 class="section-title">Cómo funciona paso a paso</h2>
+    <p class="section-body">Desde que un dato entra al sistema hasta que el administrador recibe una alerta, el proceso es completamente automático. Así opera SecurePYME Agent en tiempo real.</p>
+  </div>
+  <div class="flow-timeline" style="margin-left:0; padding-left:60px;">
+    <div class="flow-step">
+      <div class="flow-dot" style="color:var(--green); border-color:var(--green);">1</div>
+      <div class="flow-content">
+        <div class="flow-title" style="color:var(--green)">Recolección de datos en tiempo real</div>
+        <div class="flow-text">El agente Wazuh, instalado en los computadores y servidores de la PYME, captura de forma continua todos los eventos: inicios de sesión, archivos accedidos, tráfico de red, correos recibidos y aplicaciones ejecutadas. Estos datos se normalizan y comprimen antes de ser procesados.</div>
+        <div class="flow-chip" style="background:rgba(0,230,118,0.08); color:var(--green); border:1px solid rgba(0,230,118,0.2);">WAZUH AGENT · NORMALIZACIÓN · COMPRESIÓN</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="color:var(--cyan); border-color:var(--cyan);">2</div>
+      <div class="flow-content">
+        <div class="flow-title" style="color:var(--cyan)">Análisis local con Machine Learning</div>
+        <div class="flow-text">Los modelos Isolation Forest y Autoencoder analizan cada evento directamente en el dispositivo, comparándolo con el comportamiento normal aprendido durante el Auto-Training Shield. Si algo sale de lo ordinario (un acceso a las 3 AM, una descarga masiva inusual), se genera una alerta inmediata, con o sin internet.</div>
+        <div class="flow-chip" style="background:rgba(0,229,255,0.08); color:var(--cyan); border:1px solid rgba(0,229,255,0.2);">DETECCIÓN OFFLINE · ANOMALY SCORE · ALERTA INMEDIATA</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="color:#64B5F6; border-color:#64B5F6;">3</div>
+      <div class="flow-content">
+        <div class="flow-title" style="color:#64B5F6">Sincronización y correlación avanzada</div>
+        <div class="flow-text">Cuando hay conexión a internet, los eventos se envían cifrados al servidor en la nube. El motor de correlación MITRE ATT&CK analiza patrones complejos que abarcan múltiples dispositivos y días, detectando ataques multi-etapa como movimiento lateral o exfiltración de datos que el análisis local individual no capturaría.</div>
+        <div class="flow-chip" style="background:rgba(26,110,255,0.08); color:#64B5F6; border:1px solid rgba(26,110,255,0.2);">TLS/AES CIFRADO · MITRE ATT&CK · CORRELACIÓN MULTI-DISPOSITIVO</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="color:var(--amber); border-color:var(--amber);">4</div>
+      <div class="flow-content">
+        <div class="flow-title" style="color:var(--amber)">Respuesta automática y notificación</div>
+        <div class="flow-text">Ante una amenaza confirmada, el sistema actúa de inmediato: bloquea IPs sospechosas, pone en cuarentena el dispositivo comprometido y abre un ticket de incidente. Simultáneamente, notifica al administrador por WhatsApp, correo y SMS con una descripción clara y sin tecnicismos del problema detectado.</div>
+        <div class="flow-chip" style="background:rgba(255,179,0,0.08); color:var(--amber); border:1px solid rgba(255,179,0,0.2);">RESPUESTA AUTOMÁTICA · WHATSAPP · CORREO · SMS</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="color:var(--purple); border-color:var(--purple);">5</div>
+      <div class="flow-content">
+        <div class="flow-title" style="color:var(--purple)">Reporte y mejora continua</div>
+        <div class="flow-text">El sistema genera informes automáticos de seguridad con lenguaje no técnico, cumpliendo con la Ley 1581 de protección de datos. El módulo educativo lanza simulaciones de phishing periódicas para el personal. El modelo de ML se actualiza semanalmente con los nuevos patrones aprendidos.</div>
+        <div class="flow-chip" style="background:rgba(101,31,255,0.08); color:var(--purple); border:1px solid rgba(101,31,255,0.2);">LEY 1581 · INFORMES AUTOMÁTICOS · MEJORA CONTINUA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- AUTO-TRAINING SHIELD -->
+<section id="shield">
+  <div class="reveal">
+    <div class="section-label">// 06 · COMPONENTE INNOVADOR</div>
+    <h2 class="section-title">Auto-Training Shield</h2>
+    <p class="section-body">El diferenciador clave del sistema. Durante las primeras dos semanas, SecurePYME Agent aprende el comportamiento normal de la empresa de forma completamente autónoma, sin intervención humana ni configuración manual.</p>
+  </div>
+  <div class="shield-section reveal" style="transition-delay:0.2s">
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:1.5rem;">
+      <div style="width:56px; height:56px; background:rgba(0,229,255,0.08); border:2px solid var(--cyan); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:26px; color:var(--cyan);">&#9670;</div>
+      <div>
+        <div style="font-family:var(--font-head); font-size:14px; font-weight:700; color:var(--cyan); letter-spacing:1px;">AUTO-TRAINING SHIELD</div>
+        <div style="font-size:13px; color:var(--text2); margin-top:4px;">Sin expertos. Sin configuración. Sin intervención humana.</div>
+      </div>
+      <div style="margin-left:auto; text-align:right;">
+        <div style="font-family:var(--font-head); font-size:10px; color:var(--text3); letter-spacing:1px;">ESTADO DEL APRENDIZAJE</div>
+        <div style="font-family:var(--font-head); font-size:18px; font-weight:700; color:var(--green); margin-top:4px;">COMPLETADO ✓</div>
+      </div>
+    </div>
+    <div style="background:var(--panel2); border-radius:4px; height:6px; margin-bottom:8px;">
+      <div style="background:linear-gradient(90deg, var(--cyan), var(--blue)); border-radius:4px; height:6px; width:100%; animation:grow-bar 2s ease both;"></div>
+    </div>
+    <style>@keyframes grow-bar{ from{width:0} to{width:100%} }</style>
+    <div style="font-size:11px; color:var(--text3); font-family:var(--font-head); letter-spacing:1px; margin-bottom:2rem;">14 / 14 días de observación completados · Modelo listo para detectar anomalías</div>
+
+    <div class="shield-cycle">
+      <div class="shield-step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">OBSERVACIÓN</div>
+          <div class="step-text">Semanas 1-2: El sistema registra pasivamente todos los patrones de comportamiento normal de la empresa — horarios de trabajo, volúmenes de tráfico, aplicaciones usadas, usuarios activos.</div>
+        </div>
+      </div>
+      <div class="shield-step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">APRENDIZAJE</div>
+          <div class="step-text">Los modelos Isolation Forest y Autoencoder construyen una línea base del comportamiento típico de esta PYME específica, adaptada a su realidad operativa particular.</div>
+        </div>
+      </div>
+      <div class="shield-step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">VALIDACIÓN</div>
+          <div class="step-text">Cada evento nuevo se compara automáticamente contra el modelo aprendido. Cualquier desviación significativa activa el sistema de alertas con un nivel de severidad calculado.</div>
+        </div>
+      </div>
+      <div class="shield-step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">ACTUALIZACIÓN</div>
+          <div class="step-text">El modelo se actualiza automáticamente cada semana incorporando los nuevos patrones legítimos y descartando falsos positivos, mejorando su precisión con el tiempo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- SOLUCIÓN A LA PROBLEMÁTICA -->
+<section id="solucion">
+  <div class="reveal">
+    <div class="section-label">// 07 · RESPUESTA A LA PROBLEMÁTICA</div>
+    <h2 class="section-title">Cómo SecurePYME Agent resuelve<br>cada causa raíz</h2>
+  </div>
+  <div class="table-wrap reveal" style="transition-delay:0.2s">
+    <table class="sol-table">
+      <thead>
+        <tr>
+          <th>CAUSA RAÍZ DEL PROBLEMA</th>
+          <th>SOLUCIÓN QUE IMPLEMENTA EL SISTEMA</th>
+          <th>COMPONENTE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-prob">Falta de monitoreo continuo</td>
+          <td class="td-sol">Agente Wazuh activo 24/7 en todos los dispositivos, incluso sin internet</td>
+          <td style="color:var(--text3); font-family:var(--font-head); font-size:10px; letter-spacing:1px;">CAPA 1 · EDGE</td>
+        </tr>
+        <tr>
+          <td class="td-prob">Baja inversión en seguridad</td>
+          <td class="td-sol">100% software open source + SaaS con pago por uso. Costo inicial: $2.8M–$4.2M COP para 10-30 empleados</td>
+          <td style="color:var(--text3); font-family:var(--font-head); font-size:10px; letter-spacing:1px;">ARQUITECTURA SAAS</td>
+        </tr>
+        <tr>
+          <td class="td-prob">Personal sin formación técnica</td>
+          <td class="td-sol">Dashboard con lenguaje no técnico + módulo gamificado de capacitación para todos los empleados</td>
+          <td style="color:var(--text3); font-family:var(--font-head); font-size:10px; letter-spacing:1px;">CAPA 4 · USUARIO</td>
+        </tr>
+        <tr>
+          <td class="td-prob">Software desactualizado</td>
+          <td class="td-sol">Detección automática de vulnerabilidades CVE y alertas de actualización pendiente</td>
+          <td style="color:var(--text3); font-family:var(--font-head); font-size:10px; letter-spacing:1px;">THREAT INTELLIGENCE</td>
+        </tr>
+        <tr>
+          <td class="td-prob">Conectividad inestable</td>
+          <td class="td-sol">El ML corre localmente (edge). Sin internet, el sistema sigue funcionando y detectando. Sincroniza cuando hay conexión.</td>
+          <td style="color:var(--text3); font-family:var(--font-head); font-size:10px; letter-spacing:1px;">CAPA 2 · ML LOCAL</td>
+        </tr>
+        <tr>
+          <td class="td-prob">Ausencia de cultura de seguridad</td>
+          <td class="td-sol">Simulaciones periódicas de phishing, gamificación con niveles e insignias para crear hábitos digitales seguros</td>
+          <td style="color:var(--text3); font-family:var(--font-head); font-size:10px; letter-spacing:1px;">MÓDULO EDUCATIVO</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="reveal" style="margin-top:2rem; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; transition-delay:0.3s">
+    <div style="padding:20px; background:var(--panel); border:1px solid var(--border2); border-radius:4px; text-align:center;">
+      <div style="font-family:var(--font-head); font-size:32px; font-weight:900; color:var(--cyan);">&lt;$4.2M</div>
+      <div style="font-size:12px; color:var(--text2); margin-top:4px;">COP costo inicial<br>para 10-30 empleados</div>
+    </div>
+    <div style="padding:20px; background:var(--panel); border:1px solid var(--border2); border-radius:4px; text-align:center;">
+      <div style="font-family:var(--font-head); font-size:32px; font-weight:900; color:var(--green);">24/7</div>
+      <div style="font-size:12px; color:var(--text2); margin-top:4px;">Monitoreo continuo<br>con o sin internet</div>
+    </div>
+    <div style="padding:20px; background:var(--panel); border:1px solid var(--border2); border-radius:4px; text-align:center;">
+      <div style="font-family:var(--font-head); font-size:32px; font-weight:900; color:var(--amber);">14 días</div>
+      <div style="font-size:12px; color:var(--text2); margin-top:4px;">Auto-aprendizaje<br>sin intervención</div>
+    </div>
+    <div style="padding:20px; background:var(--panel); border:1px solid var(--border2); border-radius:4px; text-align:center;">
+      <div style="font-family:var(--font-head); font-size:32px; font-weight:900; color:var(--purple);">0</div>
+      <div style="font-size:12px; color:var(--text2); margin-top:4px;">Expertos en TI<br>requeridos</div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ACERCA DE -->
+<section id="acerca">
+  <div class="reveal">
+    <div class="section-label">// 08 · INFORMACIÓN DEL PROYECTO</div>
+    <h2 class="section-title">Ficha del proyecto</h2>
+  </div>
+  <div class="about-card reveal" style="transition-delay:0.2s">
+    <div>
+      <div class="about-info-row"><span class="about-label">AUTOR</span><span class="about-val">Cristian Duvan Silva Serna</span></div>
+      <div class="about-info-row"><span class="about-label">C.C.</span><span class="about-val">1.054.562.969</span></div>
+      <div class="about-info-row"><span class="about-label">UNIVERSIDAD</span><span class="about-val">UNAD – Universidad Nacional Abierta y a Distancia</span></div>
+      <div class="about-info-row"><span class="about-label">CURSO</span><span class="about-val">202337120: Proyecto de Ingeniería I</span></div>
+      <div class="about-info-row"><span class="about-label">TUTOR</span><span class="about-val">David Albeiro Andrade Yejas</span></div>
+      <div class="about-info-row"><span class="about-label">ETAPA</span><span class="about-val">Etapa 4 – Prototipado del Sistema</span></div>
+      <div class="about-info-row"><span class="about-label">FECHA</span><span class="about-val">Abril de 2026</span></div>
+      <div class="about-info-row"><span class="about-label">HERRAMIENTAS</span><span class="about-val">Miro · Figma · HTML/CSS · ChatGPT</span></div>
+    </div>
+    <div>
+      <div style="font-family:var(--font-head); font-size:10px; letter-spacing:2px; color:var(--text3); margin-bottom:1rem;">EQUIPO DE TRABAJO</div>
+      <div class="about-info-row"><span class="about-label">INTEGRANTE 1</span><span class="about-val">Cristian Duvan Silva Serna</span></div>
+      <div class="about-info-row"><span class="about-label">INTEGRANTE 2</span><span class="about-val">Natalia Gutierrez Daza</span></div>
+      <div class="about-info-row"><span class="about-label">INTEGRANTE 3</span><span class="about-val">Yamile López Alzate</span></div>
+      <div class="about-info-row"><span class="about-label">INTEGRANTE 4</span><span class="about-val">Robert Stephen Bernal Mazo</span></div>
+
+      <div style="margin-top:1.5rem; font-family:var(--font-head); font-size:10px; letter-spacing:2px; color:var(--text3); margin-bottom:0.75rem;">ALINEACIÓN ODS</div>
+      <div class="ods-badge">
+        <div class="ods-num">9</div>
+        <div class="ods-text">
+          <div style="font-family:var(--font-head); font-size:10px; color:var(--green); font-weight:700; letter-spacing:1px;">INDUSTRIA, INNOVACIÓN E INFRAESTRUCTURA</div>
+          <div style="font-size:11px; margin-top:2px;">Fortalece la resiliencia tecnológica de las PYMES colombianas y promueve una innovación segura y sostenible.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem; padding:14px; background:rgba(0,229,255,0.04); border:1px solid var(--border2); border-radius:4px;">
+        <div style="font-family:var(--font-head); font-size:9px; letter-spacing:1.5px; color:var(--text3); margin-bottom:6px;">CUMPLIMIENTO NORMATIVO</div>
+        <div style="font-size:12px; color:var(--text2); line-height:1.7;">Ley 1581 de 2012 (Protección de datos) · ISO/IEC 27001:2022 · Marco ético IEEE para sistemas de IA · NIST Cybersecurity Framework 1.1 · MITRE ATT&CK</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:8px;">
+    <span style="color:var(--cyan)">SECUREPYME AGENT</span> &nbsp;·&nbsp; SISTEMA HÍBRIDO INTELIGENTE &nbsp;·&nbsp; ETAPA 4 · PROTOTIPO DE BAJO NIVEL
+  </div>
+  <div>CRISTIAN DUVAN SILVA SERNA &nbsp;·&nbsp; UNAD &nbsp;·&nbsp; PROYECTO DE INGENIERÍA I &nbsp;·&nbsp; 2026</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
